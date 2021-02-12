@@ -1,0 +1,25 @@
+{
+  "name": "sorting-algorithms",
+  "version": "1.0.0",
+  "description": "Program that visualizes sorting algorithms",
+  "private": true,
+  "dependencies": {
+    "webpack": "^5.21.2",
+    "webpack-cli": "^4.5.0"
+  },
+  "devDependencies": {},
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/kurtisgrant/sorting-algorithms.git"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/kurtisgrant/sorting-algorithms/issues"
+  },
+  "homepage": "https://github.com/kurtisgrant/sorting-algorithms#readme"
+}
