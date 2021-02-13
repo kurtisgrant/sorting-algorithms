@@ -110,7 +110,6 @@ header {
 
 .slider {
   width: 100%;
-  direction: rtl;
 }
 
 .canvas-container {
@@ -120,13 +119,14 @@ header {
   justify-content: center;
   overflow: hidden;
   width: 100%;
-  border: solid 1px #000000de;
+  /* border: solid 1px #000000de; */
   margin: 0;
   padding: 0;
 }
 
 #main-canvas {
-  border: solid 1px #d10000be;
+  /* border: solid 1px #d10000be; */
+  /* border-radius: 10px; */
   margin: 0;
   padding: 0;
 }

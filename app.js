@@ -1,3 +1,6 @@
+const RANGE = 2000;
+const COLORS = ['#2d9e6d', '#f7d2b5', '#8cc1f3', '#e38cf3', '#f38cb1']
+
 // DOM Elements
 const canvas_container = document.querySelector('.canvas-container');
 const canvas_el = document.querySelector('#main-canvas');
@@ -17,12 +20,51 @@ const length_slider = document.querySelector('#length-slider');
 // Algorithm Selector Buttons
 const algo_btns = document.querySelectorAll('.algo-btn');
 
+// Drawing Context
+const ctx = canvas_el.getContext('2d');
+
 class Sketch {
   constructor() {
+    this.bars = [];
     this.resize();
+    this.setArrProps();
     this.paused = true;
     // this.sort_algo = selectionAlgo;  TODO
 
+    for (let i = 0; i < this.arrLen; i++) {
+      this.bars.push({
+        index: i,
+        width: this.barWidth,
+        maxHeight: this.h,
+        height: (Math.trunc(Math.random()*RANGE)) / RANGE * this.h,
+        color: COLORS[0],
+        draw: function() {
+          ctx.fillStyle = this.color;
+          ctx.fillRect(
+            this.index * this.width,
+            this.maxHeight - this.height,
+            this.width,
+            this.height
+          );
+          console.log(
+            this.index * this.width,
+            this.maxHeight - this.height,
+            this.width,
+            this.height
+          );
+        }
+      })
+    }
+
+
+    this.drawBars();
+  
+
+  }
+  drawBars() {
+    this.bars.forEach(bar => {
+      bar.draw();
+    })
   }
   playPause() {
     this.paused = !this.paused;
@@ -44,14 +86,12 @@ class Sketch {
     this.h = Math.floor(this.w * 0.7);
     canvas_el.width = this.w;
     canvas_el.height = this.h;
-
-    this.maxArrLen = this.w;
-    this.minArrLen = 8;
-    this.minBarW = 1;
-    this.maxBarW = Math.floor(this.w / this.minArrLen);
-    this.barWidth = Math.ceil(length_slider.value/100 * this.maxBarW);
-    this.arrLen = Math.floor(this.maxArrLen / this.barWidth);
-    console.log(length_slider.value, this);
+  }
+  setArrProps() {
+    const maxArrLen = this.w;
+    const minArrLen = 8;
+    this.arrLen = Math.ceil(length_slider.value / 100 * (maxArrLen - minArrLen) + minArrLen);
+    this.barWidth = this.w / this.arrLen;
   }
 }
 
@@ -60,4 +100,6 @@ const sketch = new Sketch();
 // Event Listeners
 window.addEventListener('resize', () => {
   sketch.resize();
+  sketch.setArrProps();
+  sketch.drawBars();
 })
