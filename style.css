@@ -95,6 +95,10 @@ header {
   border-style: none;
 }
 
+#controls button:hover {
+  background-color: #2e8b63;
+}
+
 #controls label {
   font-size: 1.1rem;
   font-weight: 600;
@@ -106,10 +110,23 @@ header {
 
 .slider {
   width: 100%;
+  direction: rtl;
 }
 
 .canvas-container {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  overflow: hidden;
   width: 100%;
-  height: 300px;
-  background: #ffc8c85c;
+  border: solid 1px #000000de;
+  margin: 0;
+  padding: 0;
+}
+
+#main-canvas {
+  border: solid 1px #d10000be;
+  margin: 0;
+  padding: 0;
 }
