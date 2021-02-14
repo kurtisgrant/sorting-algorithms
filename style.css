@@ -9,8 +9,7 @@ body {
   display: grid;
   min-height: 100vh;
   grid-template-columns:
-    minmax(5px, 8%) minmax(135px, 15%) minmax(400px, 60%)
-    minmax(180px, 25%)
+    minmax(5px, 8%) minmax(176px, 14%) minmax(300px, 70%)
     minmax(5px, 8%);
   grid-template-rows: auto 1fr;
   background-color: #e9fafb;
@@ -18,7 +17,7 @@ body {
 
 header {
   color: #2d9e6d;
-  grid-column: 1 / 6;
+  grid-column: 1 / 5;
   text-align: center;
   background-color: #d1f4e5;
   filter: drop-shadow(2px 2px 5px #144e3524);
@@ -77,7 +76,7 @@ header {
 .ctrl-group {
   display: flex;
   flex-direction: column;
-  margin-bottom: 10px;
+  margin-bottom: 20px;
 }
 
 #controls button,
@@ -117,7 +116,7 @@ header {
   flex-direction: column;
   align-items: center;
   justify-content: center;
-  overflow: hidden;
+  overflow: scroll;
   width: 100%;
   /* border: solid 1px #000000de; */
   margin: 0;

@@ -1,105 +1,162 @@
-const RANGE = 2000;
 const COLORS = ['#2d9e6d', '#f7d2b5', '#8cc1f3', '#e38cf3', '#f38cb1']
 
 // DOM Elements
 const canvas_container = document.querySelector('.canvas-container');
 const canvas_el = document.querySelector('#main-canvas');
-// Text Elements
 const algo_name = document.querySelector('#algo-name');
-const info_intro = document.querySelector('#into-intro');
-const info_process = document.querySelector('#info-process');
-const time_complexity = document.querySelector('#time-complexity');
-const time_notes = document.querySelector('#time-notes');
-const space_complexity = document.querySelector('#space-complexity');
-const space_notes = document.querySelector('#space-notes');
-// Controls
-const play_btn = document.querySelector('#play_btn');
-const shuffle_btn = document.querySelector('#shuffle-btn');
-const speed_slider = document.querySelector('#speed-slider');
-const length_slider = document.querySelector('#length-slider');
-// Algorithm Selector Buttons
-const algo_btns = document.querySelectorAll('.algo-btn');
+const control_panel = document.querySelector('#controls');
 
 // Drawing Context
 const ctx = canvas_el.getContext('2d');
 
 class Sketch {
   constructor() {
-    this.bars = [];
-    this.resize();
-    this.setArrProps();
+    this.animating = false;
+    this.k = 2000;
+    this.fps = 6;
+    this.setSize();
     this.paused = true;
-    // this.sort_algo = selectionAlgo;  TODO
-
-    for (let i = 0; i < this.arrLen; i++) {
-      this.bars.push({
-        index: i,
-        width: this.barWidth,
-        maxHeight: this.h,
-        height: (Math.trunc(Math.random()*RANGE)) / RANGE * this.h,
-        color: COLORS[0],
-        draw: function() {
-          ctx.fillStyle = this.color;
-          ctx.fillRect(
-            this.index * this.width,
-            this.maxHeight - this.height,
-            this.width,
-            this.height
-          );
-          console.log(
-            this.index * this.width,
-            this.maxHeight - this.height,
-            this.width,
-            this.height
-          );
-        }
-      })
+    this.sortFunc = selectionSort;
+    this.state = {
+      sortComplete: false,
+      sortMemory: [],
+      array: this.newArray()
     }
-
-
-    this.drawBars();
-  
-
+    this.newArray();
   }
-  drawBars() {
-    this.bars.forEach(bar => {
-      bar.draw();
-    })
+  animate() {
+    if (!this.animating) {
+      this.draw();
+      this.animating = true;
+    } else {
+      this.update();
+    }
+  }
+  update() {
+    if (this.paused || this.state.sortComplete) {
+      return;
+    }
+    counter++;
+    this.state = this.sortFunc(this.state);
+    this.draw();
+  }
+  draw() {
+    ctx.clearRect(0, 0, this.w, this.h)
+    this.state.array.forEach((item, index) => {
+      ctx.fillStyle = item.color;
+      item.color = COLORS[0];
+      const barHeight = item.value / this.k * this.h;
+      const y = this.h - barHeight;
+      // ctx.fillRect(index, y, 1, barHeight);
+      ctx.fillRect(index*30, y, 30, barHeight);
+    });
   }
   playPause() {
     this.paused = !this.paused;
+    return this.paused ? 'Play' : 'Pause';
   }
-  clear() {
-    // TODO
+  setAlgo(func) {
+    if (this.sortFunc !== func) {
+      this.state.sortComplete = false;
+      this.state.sortMemory = [];
+      this.sortFunc = func;
+    }
   }
-  setAlgo() {
-    // TODO
-  }
-  setSpeed() {
-    // TODO
-  }
-  setLength() {
-    // TODO
-  }
-  resize() {
+  setSize() {
     this.w = canvas_container.offsetWidth -4;
-    this.h = Math.floor(this.w * 0.7);
-    canvas_el.width = this.w;
-    canvas_el.height = this.h;
+    this.h = Math.floor(this.w * 0.6);
+    canvas_el.width = this.w-4;
+    canvas_el.height = this.h-4;
   }
-  setArrProps() {
-    const maxArrLen = this.w;
-    const minArrLen = 8;
-    this.arrLen = Math.ceil(length_slider.value / 100 * (maxArrLen - minArrLen) + minArrLen);
-    this.barWidth = this.w / this.arrLen;
+  newArray() {
+    const arr = [];
+    // for (let i = 0; i < this.w; i++) {
+    for (let i = 0; i < 10; i++) {
+      arr.push({
+        value: Math.ceil(Math.random() * this.k),
+        color: COLORS[0]
+      });
+    }
+    return arr;
   }
 }
 
 const sketch = new Sketch();
+loadEventListeners(sketch);
+
+let counter = 0;
+let then = Date.now();
+f = function() {
+  requestAnimationFrame(f);
+  let now = Date.now();
+  if (now - then > (1000/sketch.fps)) {
+    then = Date.now();
+    if (counter < 10000) {
+      sketch.animate();
+    }
+  }
+};
+requestAnimationFrame(f);
+
+// Sort Algorithm Functions
+function selectionSort(s) {
+  let { sortMemory, array } = s;
+
+  let complete = false;
+  const mem = [{ start: 0 }];
+
+  if (sortMemory.length > 0) mem[0].start = sortMemory[0].start;
+  if (mem[0].start >= array.length) complete = true;
+  
+  let startInd = mem[0].start;
+  let minInd = array[startInd].value;
+  mem[0].start++;
+
+  for (let i = startInd + 1; i < array.length; i++) {
+    if (array[i].value < minInd) minInd = i;
+  }
+  const start = {};
+  const min = {};
+  Object.assign(start, array[startInd]);
+  Object.assign(min, array[minInd]);
+  start.color = COLORS[1];
+  min.color = COLORS[1];
+
+  const newArr = array.map((x, i) => {
+    if (i === startInd) {
+      return min;
+    } else if (i === minInd) {
+      return start;
+    } else return x;
+  })
+
+  const newState = {}
+  newState.sortComplete = complete;
+  newState.sortMemory = mem;
+  newState.array = newArr;
+
+  console.log(newState);
+
+  return newState;
+
+}
+
+
 
 // Event Listeners
-window.addEventListener('resize', () => {
-  sketch.resize();
-  sketch.setArrProps();
-  sketch.drawBars();
-})
+function loadEventListeners(s) {
+  window.addEventListener('resize', () => {
+    s.reset();
+  });
+  control_panel.addEventListener('click', (e) => {
+    const isButton = e.target.nodeName === 'BUTTON';
+    if (!isButton) {
+      return;
+    }
+    const id = e.target.id;
+    if ( id === 'play-pause') {
+      e.target.innerText = s.playPause();
+      counter = 0;
+    }
+  })
+}
