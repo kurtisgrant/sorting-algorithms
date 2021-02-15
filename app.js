@@ -16,7 +16,7 @@ class Sketch {
     this.paused = true;
 
     // List creation variables
-    this.k = 2000; // (Range of array values)
+    this.k = 8; // (Range of array values)
     this.bWidth = 5;
 
     // Sorting variables
@@ -155,8 +155,6 @@ function selectionSort(list, m) {
   list[m.comp].color = COLORS[2];
   list[m.min].color = COLORS[3];
 
-  
-  // console.log(list, m.cur, m.comp, m.min);
   return [completed, list, m];
 }
 
@@ -169,12 +167,13 @@ function insertionSort(list, m) {
   }
 
   if (m.comp < m.cur) {
-    if (list[m.comp].value > list[m.cur].value) {
+    if (list[m.comp].value >= list[m.cur].value) {
       const shelf = { ...list[m.cur] };
       for (i = m.cur; i > m.comp; i--) {
         list[i] = { ...list[i-1] };
       }
       list[m.comp] = { ...shelf };
+      m.cur = m.cur + 1;
       m.comp = 0;
       if (m.cur === list.length -1) {
         completed = true;
