@@ -98,6 +98,10 @@ header {
   background-color: #2e8b63;
 }
 
+#controls button.active {
+  background-color: #2e8b63;
+}
+
 #controls label {
   font-size: 1.1rem;
   font-weight: 600;

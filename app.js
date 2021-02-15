@@ -5,11 +5,30 @@ const COLORS = {
   'c': ['#9E912C', '#CCB929', '#E3D983'],
 }
 
+let ALGOS = {
+  'selection': {
+    name: 'Selection Sort',
+    func: selectionSort
+  },
+  'shuffle': {
+    name: 'Shuffling...',
+    func: shuffle
+  },
+  'insertion': {
+    name: 'Insertion Sort',
+    func: insertionSort
+  }
+}
+
 // DOM Elements
 const canvas_container = document.querySelector('.canvas-container');
 const canvas_el = document.querySelector('#main-canvas');
 const algo_name = document.querySelector('#algo-name');
+const play_pause_btn = document.querySelector('#play-pause');
 const control_panel = document.querySelector('#controls');
+for (let algoId in ALGOS) {
+  ALGOS[algoId].element = document.querySelector(`#${algoId}`);
+}
 
 // Drawing Context
 const ctx = canvas_el.getContext('2d');
@@ -18,16 +37,16 @@ class Sketch {
   constructor() {
     // Animation variables
     this.fps = 60; // 20fps = 50ms/fm | 40fps = 25ms/fm | 60fps = 16ms/fm <-- ~60fps is about the upper limit
-    this.sortsPerFrame = 1000;
+    this.sortsPerFrame = 10;
     this.paused = true;
 
     // List creation variables
-    this.k = 2000; // (Range of array values)
-    this.bWidth = 1;
+    this.k = 200; // (Range of array values)
+    this.bWidth = 10;
 
     // Sorting variables
+    this.algoId = 'selection';
     this.algo = selectionSort;
-    this.sorted = false;
     this.list = [];
     this.mem = {};
 
@@ -54,19 +73,37 @@ class Sketch {
     this.mem = {};
     this.draw();
   }
-  setAlgo(algo) {
-    this.algo = algo;
-    this.sorted = false;
+  setAlgo(id) {
+    ALGOS[this.algoId].element.classList.toggle('active');
+    this.algoId = id;
+    this.algo = ALGOS[id].func;
+    ALGOS[this.algoId].element.classList.toggle('active');
+    algo_name.innerText = ALGOS[this.algoId].name;
     this.mem = {};
+    this.draw();
+  }
+  shuffle() {
+    if (this.paused) this.playPause();
+    const id = this.algoId;
+    this.algo = shuffle;
+    this.mem = {};
+    for (let i = 0; i < this.list.length * 5; i++) {
+      this.update();
+    }
+    this.draw();
+    this.playPause();
+    this.setAlgo(id);
+    this.playPauseDisabled = false;
   }
   animate() {
+    if (this.paused) return;
     for (let i = 0; i < this.sortsPerFrame; i++) {
       this.update();
     }
     this.draw();
   }
   update() {
-    if (this.sorted || this.paused) return;
+    if (this.paused) return;
 
     // Get new list from sorting algorithm
     const res = this.algo(
@@ -74,8 +111,9 @@ class Sketch {
     this.list = res[1];
     this.mem = res[2];
     if (res[0]) {
-      this.sorted = true;
       this.draw();
+      this.mem = {};
+      this.playPause();
     }
   }
   draw() {
@@ -100,14 +138,8 @@ class Sketch {
   }
   playPause() {
     this.paused = !this.paused;
-    return this.paused ? 'Play' : 'Pause';
+    play_pause_btn.innerText = this.paused ? 'Play' : 'Pause';
   }
-}
-
-const algos = {
-  'selection': selectionSort,
-  'shuffle': shuffle,
-  'insertion': insertionSort
 }
 
 const sketch = new Sketch();
@@ -148,10 +180,14 @@ function selectionSort(list, m) {
       list[m.min] = { ...shelf };
     }
     m.cur = m.cur + 1;
-    if (m.cur > m.len - 2) completed = true;
-    m.comp = m.cur;
-    m.min = m.cur;
-    m.minVal = list[m.cur].value;
+    if (m.cur > m.len - 2) {
+      return [completed = true, list, m];
+    } else {
+      m.comp = m.cur;
+      m.min = m.cur;
+      m.minVal = list[m.cur].value;
+    }
+
   } else {
     if (list[m.comp].value < m.minVal) {
       m.min = m.comp;
@@ -188,8 +224,8 @@ function insertionSort(list, m) {
       m.comp = 0;
 
 
-      if (m.cur === list.length -1) {
-        completed = true;
+      if (m.cur === list.length) {
+        return [completed = true, list, m];
       }
     } else {
       m.comp = m.comp + 1;
@@ -239,10 +275,11 @@ function loadEventListeners(s) {
     }
     const id = e.target.id;
     if ( id === 'play-pause') {
-      e.target.innerText = s.playPause();
-      counter = 0;
-    } else {
-      s.setAlgo(algos[id])
+      s.playPause();
+    } else if ( id === 'shuffle' ) {
+      s.shuffle();
+    } else if ( id === 'selection' || id === 'insertion') {
+      s.setAlgo(id)
     }
   })
 }
