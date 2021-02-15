@@ -12,12 +12,12 @@ const ctx = canvas_el.getContext('2d');
 class Sketch {
   constructor() {
     // Animation variables
-    this.fps = 80;
+    this.fps = 40;
     this.paused = true;
 
     // List creation variables
-    this.k = 8; // (Range of array values)
-    this.bWidth = 5;
+    this.k = 2000; // (Range of array values)
+    this.bWidth = 2;
 
     // Sorting variables
     this.algo = selectionSort;
@@ -54,8 +54,10 @@ class Sketch {
     this.mem = {};
   }
   animate() {
-    // Return if paused or already sorted
-    if (this.paused || this.sorted) return;
+    this.draw();
+  }
+  update() {
+    if (this.sorted || this.paused) return;
 
     // Get new list from sorting algorithm
     const res = this.algo(
@@ -66,7 +68,6 @@ class Sketch {
       this.sorted = true;
       this.draw();
     }
-    this.draw();
   }
   draw() {
     // Clear canvas
@@ -102,6 +103,14 @@ const algos = {
 
 const sketch = new Sketch();
 loadEventListeners(sketch);
+
+t = setInterval((() => {
+  if (!sketch.paused && !sketch.sorted) {
+    for (let i = 0; i < 500; i++) {
+      sketch.update();
+    }
+  }
+}), 1);
 
 let counter = 0;
 let then = Date.now();
@@ -151,8 +160,8 @@ function selectionSort(list, m) {
     }
   } 
 
-  list[m.cur].color = COLORS[1];
-  list[m.comp].color = COLORS[2];
+  list[m.cur].color = COLORS[2];
+  // list[m.comp].color = COLORS[1];
   list[m.min].color = COLORS[3];
 
   return [completed, list, m];
@@ -186,8 +195,8 @@ function insertionSort(list, m) {
     m.comp = 0;
   }
 
-  list[m.cur].color = COLORS[2];
-  list[m.comp].color = COLORS[2];
+  list[m.cur].color = COLORS[3];
+  // list[m.comp].color = COLORS[2];
 
   return [completed, list, m];
 }
@@ -196,7 +205,7 @@ function insertionSort(list, m) {
 function shuffle(list, m) {
   let completed = false;
   if (!m.hasOwnProperty('num')) {
-    m.num = 100
+    m.num = 3000
   }
   
   m.num = m.num - 1;
