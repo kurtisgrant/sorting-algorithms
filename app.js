@@ -1,4 +1,4 @@
-const COLORS = ['#2d9e6d', '#f7d2b5', '#8cc1f3', '#e38cf3', '#f38cb1']
+const COLORS = ['#2d9e6d', '#4cbd8c', '#8cc1f3', '#e38cf3', '#f38cb1']
 
 // DOM Elements
 const canvas_container = document.querySelector('.canvas-container');
@@ -11,74 +11,93 @@ const ctx = canvas_el.getContext('2d');
 
 class Sketch {
   constructor() {
-    this.animating = false;
-    this.k = 2000;
-    this.fps = 6;
-    this.setSize();
+    // Animation variables
+    this.fps = 80;
     this.paused = true;
-    this.sortFunc = selectionSort;
-    this.state = {
-      sortComplete: false,
-      sortMemory: [],
-      array: this.newArray()
+
+    // List creation variables
+    this.k = 2000; // (Range of array values)
+    this.bWidth = 5;
+
+    // Sorting variables
+    this.algo = selectionSort;
+    this.sorted = false;
+    this.list = [];
+    this.mem = {};
+
+    // Setup w & h and create
+    this.setup();
+  }
+  setup() {
+    // Set w & h to canvas container
+    this.w = canvas_container.offsetWidth -4;
+    this.h = Math.floor(this.w * 0.6);
+    // Size canvas according to w & h
+    canvas_el.width = this.w-4;
+    canvas_el.height = this.h-4;
+    // Populate list
+    const items = Math.floor(this.w / this.bWidth);
+    const nList = [];
+    for (let i = 0; i < items; i++) {
+      nList.push({
+        value: Math.ceil(Math.random() * this.k),
+        color: COLORS[0]
+      });
     }
-    this.newArray();
+    this.list = nList;
+    this.mem = {};
+    this.draw();
+  }
+  setAlgo(algo) {
+    this.algo = algo;
+    this.sorted = false;
+    this.mem = {};
   }
   animate() {
-    if (!this.animating) {
+    // Return if paused or already sorted
+    if (this.paused || this.sorted) return;
+
+    // Get new list from sorting algorithm
+    const res = this.algo(
+      copyList(this.list), this.mem);
+    this.list = res[1];
+    this.mem = res[2];
+    if (res[0]) {
+      this.sorted = true;
       this.draw();
-      this.animating = true;
-    } else {
-      this.update();
     }
-  }
-  update() {
-    if (this.paused || this.state.sortComplete) {
-      return;
-    }
-    counter++;
-    this.state = this.sortFunc(this.state);
     this.draw();
   }
   draw() {
+    // Clear canvas
     ctx.clearRect(0, 0, this.w, this.h)
-    this.state.array.forEach((item, index) => {
+
+    // Draw out list items
+    this.list.forEach((item, index) => {
+      // Set drawing color
       ctx.fillStyle = item.color;
+
+      // Reset item color
       item.color = COLORS[0];
-      const barHeight = item.value / this.k * this.h;
-      const y = this.h - barHeight;
-      // ctx.fillRect(index, y, 1, barHeight);
-      ctx.fillRect(index*30, y, 30, barHeight);
+
+      // Draw bar
+      const w = this.bWidth;
+      const h = item.value / this.k * this.h;
+      const y = this.h - h;
+      const x = index * w;
+      ctx.fillRect(x, y, w, h);
     });
   }
   playPause() {
     this.paused = !this.paused;
     return this.paused ? 'Play' : 'Pause';
   }
-  setAlgo(func) {
-    if (this.sortFunc !== func) {
-      this.state.sortComplete = false;
-      this.state.sortMemory = [];
-      this.sortFunc = func;
-    }
-  }
-  setSize() {
-    this.w = canvas_container.offsetWidth -4;
-    this.h = Math.floor(this.w * 0.6);
-    canvas_el.width = this.w-4;
-    canvas_el.height = this.h-4;
-  }
-  newArray() {
-    const arr = [];
-    // for (let i = 0; i < this.w; i++) {
-    for (let i = 0; i < 10; i++) {
-      arr.push({
-        value: Math.ceil(Math.random() * this.k),
-        color: COLORS[0]
-      });
-    }
-    return arr;
-  }
+}
+
+const algos = {
+  'selection': selectionSort,
+  'shuffle': shuffle,
+  'insertion': insertionSort
 }
 
 const sketch = new Sketch();
@@ -90,8 +109,9 @@ f = function() {
   requestAnimationFrame(f);
   let now = Date.now();
   if (now - then > (1000/sketch.fps)) {
+  // if (true) {
     then = Date.now();
-    if (counter < 10000) {
+    if (counter < 300) {
       sketch.animate();
     }
   }
@@ -99,54 +119,106 @@ f = function() {
 requestAnimationFrame(f);
 
 // Sort Algorithm Functions
-function selectionSort(s) {
-  let { sortMemory, array } = s;
-
-  let complete = false;
-  const mem = [{ start: 0 }];
-
-  if (sortMemory.length > 0) mem[0].start = sortMemory[0].start;
-  if (mem[0].start >= array.length) complete = true;
-  
-  let startInd = mem[0].start;
-  let minInd = array[startInd].value;
-  mem[0].start++;
-
-  for (let i = startInd + 1; i < array.length; i++) {
-    if (array[i].value < minInd) minInd = i;
+function selectionSort(list, m) {
+  let completed = false;
+  if (!m.hasOwnProperty('cur')) {
+    m.cur = 0;
+    m.comp = 0;
+    m.len = list.length;
+    m.min = 0;
+    m.minVal = list[0].value;
   }
-  const start = {};
-  const min = {};
-  Object.assign(start, array[startInd]);
-  Object.assign(min, array[minInd]);
-  start.color = COLORS[1];
-  min.color = COLORS[1];
+  m.comp = m.comp + 1;
 
-  const newArr = array.map((x, i) => {
-    if (i === startInd) {
-      return min;
-    } else if (i === minInd) {
-      return start;
-    } else return x;
-  })
+  // SWAP turn
+  if (m.comp > m.len - 1) {
+    if (list[m.min] !== list[m.comp]) {
+      const shelf = { ...list[m.cur] };
+      list[m.cur] = { ...list[m.min] };
+      list[m.min] = { ...shelf };
+    }
+    m.cur = m.cur + 1;
+    if (m.cur > m.len - 2) {
+      completed = true;
+    }
+    m.comp = m.cur;
+    m.min = m.cur;
+    m.minVal = list[m.cur].value;
+  } else {
+    if (list[m.comp].value < m.minVal) {
+      m.min = m.comp;
+      m.minVal = list[m.min].value;
+    }
+  } 
 
-  const newState = {}
-  newState.sortComplete = complete;
-  newState.sortMemory = mem;
-  newState.array = newArr;
+  list[m.cur].color = COLORS[1];
+  list[m.comp].color = COLORS[2];
+  list[m.min].color = COLORS[3];
 
-  console.log(newState);
-
-  return newState;
-
+  
+  // console.log(list, m.cur, m.comp, m.min);
+  return [completed, list, m];
 }
 
+
+function insertionSort(list, m) {
+  let completed = false;
+  if (!m.hasOwnProperty('cur')) {
+    m.cur = 1;
+    m.comp = 0;
+  }
+
+  if (m.comp < m.cur) {
+    if (list[m.comp].value > list[m.cur].value) {
+      const shelf = { ...list[m.cur] };
+      for (i = m.cur; i > m.comp; i--) {
+        list[i] = { ...list[i-1] };
+      }
+      list[m.comp] = { ...shelf };
+      m.comp = 0;
+      if (m.cur === list.length -1) {
+        completed = true;
+      }
+    } else {
+      m.comp = m.comp + 1;
+    }
+  } else {
+    m.cur = m.cur + 1;
+    m.comp = 0;
+  }
+
+  list[m.cur].color = COLORS[2];
+  list[m.comp].color = COLORS[2];
+
+  return [completed, list, m];
+}
+
+
+function shuffle(list, m) {
+  let completed = false;
+  if (!m.hasOwnProperty('num')) {
+    m.num = 100
+  }
+  
+  m.num = m.num - 1;
+  m.a = Math.floor(Math.random() * list.length);
+  m.b = Math.floor(Math.random() * list.length);
+  const shelf = { ...list[m.a] };
+  list[m.a] = { ...list[m.b] };
+  list[m.b] = { ...shelf };
+  list[m.a].color = COLORS[2];
+  list[m.b].color = COLORS[2];
+
+  if (m.num < 1) completed = true;
+  
+  return [completed, list, m];
+}
 
 
 // Event Listeners
 function loadEventListeners(s) {
   window.addEventListener('resize', () => {
-    s.reset();
+    s.setup();
   });
   control_panel.addEventListener('click', (e) => {
     const isButton = e.target.nodeName === 'BUTTON';
@@ -157,6 +229,22 @@ function loadEventListeners(s) {
     if ( id === 'play-pause') {
       e.target.innerText = s.playPause();
       counter = 0;
+    } else {
+      s.setAlgo(algos[id])
     }
   })
+}
+
+
+// Helper Functions
+function copyList(list) {
+  const nList = [];
+  list.forEach(item => {
+    const nItem = {
+      value: item.value,
+      color: item.color
+    }
+    nList.push(nItem);
+  })
+  return nList;
 }
