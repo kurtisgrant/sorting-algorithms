@@ -1,4 +1,9 @@
-const COLORS = ['#2d9e6d', '#4cbd8c', '#8cc1f3', '#e38cf3', '#f38cb1']
+const COLORS = {
+  'p': ['#2D9E6D', '#2DCC85', '#8DE3BE'],
+  'a': ['#41269E', '#4729CC', '#9C8DE3'],
+  'b': ['#9E3D2C', '#CC4129', '#E3998D'],
+  'c': ['#9E912C', '#CCB929', '#E3D983'],
+}
 
 // DOM Elements
 const canvas_container = document.querySelector('.canvas-container');
@@ -12,12 +17,13 @@ const ctx = canvas_el.getContext('2d');
 class Sketch {
   constructor() {
     // Animation variables
-    this.fps = 40;
+    this.fps = 60; // 20fps = 50ms/fm | 40fps = 25ms/fm | 60fps = 16ms/fm <-- ~60fps is about the upper limit
+    this.sortsPerFrame = 1000;
     this.paused = true;
 
     // List creation variables
     this.k = 2000; // (Range of array values)
-    this.bWidth = 2;
+    this.bWidth = 1;
 
     // Sorting variables
     this.algo = selectionSort;
@@ -41,7 +47,7 @@ class Sketch {
     for (let i = 0; i < items; i++) {
       nList.push({
         value: Math.ceil(Math.random() * this.k),
-        color: COLORS[0]
+        color: COLORS.p[0]
       });
     }
     this.list = nList;
@@ -54,6 +60,9 @@ class Sketch {
     this.mem = {};
   }
   animate() {
+    for (let i = 0; i < this.sortsPerFrame; i++) {
+      this.update();
+    }
     this.draw();
   }
   update() {
@@ -79,7 +88,7 @@ class Sketch {
       ctx.fillStyle = item.color;
 
       // Reset item color
-      item.color = COLORS[0];
+      item.color = COLORS.p[0];
 
       // Draw bar
       const w = this.bWidth;
@@ -104,25 +113,14 @@ const algos = {
 const sketch = new Sketch();
 loadEventListeners(sketch);
 
-t = setInterval((() => {
-  if (!sketch.paused && !sketch.sorted) {
-    for (let i = 0; i < 500; i++) {
-      sketch.update();
-    }
-  }
-}), 1);
-
 let counter = 0;
 let then = Date.now();
 f = function() {
   requestAnimationFrame(f);
   let now = Date.now();
   if (now - then > (1000/sketch.fps)) {
-  // if (true) {
     then = Date.now();
-    if (counter < 300) {
-      sketch.animate();
-    }
+    sketch.animate();
   }
 };
 requestAnimationFrame(f);
@@ -141,15 +139,16 @@ function selectionSort(list, m) {
 
   // SWAP turn
   if (m.comp > m.len - 1) {
+
+    // SWAP if min wasn't already in the right spot
     if (list[m.min] !== list[m.comp]) {
       const shelf = { ...list[m.cur] };
       list[m.cur] = { ...list[m.min] };
+      list[m.cur].color = COLORS.a[1];
       list[m.min] = { ...shelf };
     }
     m.cur = m.cur + 1;
-    if (m.cur > m.len - 2) {
-      completed = true;
-    }
+    if (m.cur > m.len - 2) completed = true;
     m.comp = m.cur;
     m.min = m.cur;
     m.minVal = list[m.cur].value;
@@ -160,9 +159,9 @@ function selectionSort(list, m) {
     }
   } 
 
-  list[m.cur].color = COLORS[2];
-  // list[m.comp].color = COLORS[1];
-  list[m.min].color = COLORS[3];
+  list[m.cur].color = COLORS.a[2];
+  list[m.comp].color = COLORS.c[0];
+  list[m.min].color = COLORS.a[1];
 
   return [completed, list, m];
 }
@@ -177,13 +176,18 @@ function insertionSort(list, m) {
 
   if (m.comp < m.cur) {
     if (list[m.comp].value >= list[m.cur].value) {
-      const shelf = { ...list[m.cur] };
+
+      // Insert
+      let shelf = { ...list[m.cur] };
+      shelf.color = COLORS.a[1];
       for (i = m.cur; i > m.comp; i--) {
         list[i] = { ...list[i-1] };
       }
       list[m.comp] = { ...shelf };
       m.cur = m.cur + 1;
       m.comp = 0;
+
+
       if (m.cur === list.length -1) {
         completed = true;
       }
@@ -195,8 +199,8 @@ function insertionSort(list, m) {
     m.comp = 0;
   }
 
-  list[m.cur].color = COLORS[3];
-  // list[m.comp].color = COLORS[2];
+  list[m.cur].color = COLORS.a[2];
+  list[m.comp].color = COLORS.c[0];
 
   return [completed, list, m];
 }
@@ -214,8 +218,8 @@ function shuffle(list, m) {
   const shelf = { ...list[m.a] };
   list[m.a] = { ...list[m.b] };
   list[m.b] = { ...shelf };
-  list[m.a].color = COLORS[2];
-  list[m.b].color = COLORS[2];
+  list[m.a].color = COLORS.a[1];
+  list[m.b].color = COLORS.a[1];
 
   if (m.num < 1) completed = true;
   
