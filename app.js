@@ -37,12 +37,12 @@ class Sketch {
   constructor() {
     // Animation variables
     this.fps = 60; // 20fps = 50ms/fm | 40fps = 25ms/fm | 60fps = 16ms/fm <-- ~60fps is about the upper limit
-    this.sortsPerFrame = 10;
+    this.sortsPerFrame = 100;
     this.paused = true;
 
     // List creation variables
-    this.k = 200; // (Range of array values)
-    this.bWidth = 10;
+    this.k = 500; // (Range of array values)
+    this.bWidth = 6;
 
     // Sorting variables
     this.algoId = 'selection';
