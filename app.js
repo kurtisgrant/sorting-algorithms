@@ -10,13 +10,13 @@ let ALGOS = {
     name: 'Selection Sort',
     func: selectionSort
   },
-  'shuffle': {
-    name: 'Shuffling...',
-    func: shuffle
-  },
   'insertion': {
     name: 'Insertion Sort',
     func: insertionSort
+  },
+  'bubble': {
+    name: 'Bubble Sort',
+    func: bubbleSort
   }
 }
 
@@ -99,19 +99,6 @@ class Sketch {
     this.mem = {};
     this.draw();
   }
-  shuffle() {
-    if (this.paused) this.playPause();
-    const id = this.algoId;
-    this.algo = shuffle;
-    this.mem = {};
-    for (let i = 0; i < this.list.length * 5; i++) {
-      this.update();
-    }
-    this.draw();
-    this.playPause();
-    this.setAlgo(id);
-    this.playPauseDisabled = false;
-  }
   animate() {
     if (this.paused) return;
     for (let i = 0; i < this.sortsPerFrame; i++) {
@@ -126,7 +113,6 @@ class Sketch {
     const res = this.algo(
       copyList(this.list), this.mem);
     this.list = res[1];
-    this.mem = res[2];
     if (res[0]) {
       this.draw();
       this.mem = {};
@@ -207,13 +193,13 @@ function selectionSort(list, m) {
     if (m.min !== m.cur) {
       const shelf = { ...list[m.cur] };
       list[m.cur] = { ...list[m.min] };
-      // list[m.cur].color = COLORS.a[2];
+      list[m.cur].color = COLORS.a[2];
       list[m.min] = { ...shelf };
       list[m.min].color = COLORS.a[2];
     }
     m.cur = m.cur + 1;
     if (m.cur > m.len - 2) {
-      return [completed = true, list, m];
+      return [completed = true, list];
     } else {
       m.comp = m.cur;
       m.min = m.cur;
@@ -231,7 +217,7 @@ function selectionSort(list, m) {
   list[m.min].color = COLORS.a[2];
   list[m.cur].color = COLORS.a[1];
 
-  return [completed, list, m];
+  return [completed, list];
 }
 
 
@@ -257,7 +243,7 @@ function insertionSort(list, m) {
 
 
       if (m.cur === list.length) {
-        return [completed = true, list, m];
+        return [completed = true, list];
       }
     } else {
       m.comp = m.comp + 1;
@@ -270,28 +256,39 @@ function insertionSort(list, m) {
   list[m.cur].color = COLORS.a[2];
   list[m.comp].color = COLORS.c[0];
 
-  return [completed, list, m];
+  return [completed, list];
 }
 
 
-function shuffle(list, m) {
-  let completed = false;
-  if (!m.hasOwnProperty('num')) {
-    m.num = 3000
-  }
-  
-  m.num = m.num - 1;
-  m.a = Math.floor(Math.random() * list.length);
-  m.b = Math.floor(Math.random() * list.length);
-  const shelf = { ...list[m.a] };
-  list[m.a] = { ...list[m.b] };
-  list[m.b] = { ...shelf };
-  list[m.a].color = COLORS.a[1];
-  list[m.b].color = COLORS.a[1];
+function bubbleSort(list, m) {
 
-  if (m.num < 1) completed = true;
+  // Initialize memory
+  if (!m.hasOwnProperty('unsorted')) {
+    m.unsorted = list.length;
+    m.swap = false;
+    m.a = 0;
+  }
+
+  // If done
+  if (m.unsorted === 0) return [completed = true, list];
+
+  // Start next loop through if done previous
+  if (m.a > m.unsorted - 2) {
+    m.a = 0;
+    m.unsorted = m.unsorted - 1;
+  }
+
+  // Swap 'a' with next if 'a' is larger
+  if (list[m.a].value > list[m.a + 1].value) {
+    const shelf = { ...list[m.a] };
+    list[m.a] = { ...list[m.a + 1] };
+    list[m.a + 1] = { ...shelf };
+  }
+
+  list[m.a+1].color = COLORS.b[1];
   
-  return [completed, list, m];
+  m.a = m.a + 1;
+  return [completed = false, list];
 }
 
 
@@ -311,8 +308,8 @@ function loadEventListeners(s) {
     } else if ( id === 'mode-toggle' ) {
       s.toggleMode();
     } else if ( id === 'shuffle' ) {
-      s.shuffle();
-    } else if ( id === 'selection' || id === 'insertion') {
+      s.setup();
+    } else {
       s.setAlgo(id)
     }
   })
