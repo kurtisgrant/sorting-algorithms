@@ -20,10 +20,26 @@ let ALGOS = {
   }
 }
 
+const MODES = {
+  'process': {
+    fps: 14,
+    k: 200,
+    bWidth: 20,
+    sortsPerFrame: 1
+  },
+  'efficiency': {
+    fps: 60,
+    k: 2000,
+    bWidth: 1,
+    sortsPerFrame: 500
+  }
+}
+
 // DOM Elements
 const canvas_container = document.querySelector('.canvas-container');
 const canvas_el = document.querySelector('#main-canvas');
 const algo_name = document.querySelector('#algo-name');
+const mode_btn = document.querySelector('#mode-toggle');
 const play_pause_btn = document.querySelector('#play-pause');
 const control_panel = document.querySelector('#controls');
 for (let algoId in ALGOS) {
@@ -35,14 +51,15 @@ const ctx = canvas_el.getContext('2d');
 
 class Sketch {
   constructor() {
+    this.mode = 'process'
     // Animation variables
-    this.fps = 60; // 20fps = 50ms/fm | 40fps = 25ms/fm | 60fps = 16ms/fm <-- ~60fps is about the upper limit
-    this.sortsPerFrame = 150;
+    this.fps = MODES[this.mode].fps; // 20fps = 50ms/fm | 40fps = 25ms/fm | 60fps = 16ms/fm <-- ~60fps is about the upper limit
+    this.sortsPerFrame = MODES[this.mode].sortsPerFrame;
     this.paused = true;
 
     // List creation variables
-    this.k = 500; // (Range of array values)
-    this.bWidth = 3;
+    this.k = MODES[this.mode].k; // (Range of array values)
+    this.bWidth = MODES[this.mode].bWidth;
 
     // Sorting variables
     this.algoId = 'selection';
@@ -140,6 +157,20 @@ class Sketch {
     this.paused = !this.paused;
     play_pause_btn.innerText = this.paused ? 'Play' : 'Pause';
   }
+  toggleMode() {
+    if (this.mode === 'process') {
+      this.mode = 'efficiency';
+      mode_btn.innerText = 'Visualize Process';
+    } else {
+      this.mode = 'process'
+      mode_btn.innerText = 'Visualize Efficiency';
+    }
+    this.fps = MODES[this.mode].fps;
+    this.sortsPerFrame = MODES[this.mode].sortsPerFrame;
+    this.k = MODES[this.mode].k; 
+    this.bWidth = MODES[this.mode].bWidth;
+    this.setup();
+  }
 }
 
 const sketch = new Sketch();
@@ -173,11 +204,12 @@ function selectionSort(list, m) {
   if (m.comp > m.len - 1) {
 
     // SWAP if min wasn't already in the right spot
-    if (list[m.min] !== list[m.comp]) {
+    if (m.min !== m.cur) {
       const shelf = { ...list[m.cur] };
       list[m.cur] = { ...list[m.min] };
-      list[m.cur].color = COLORS.a[1];
+      // list[m.cur].color = COLORS.a[2];
       list[m.min] = { ...shelf };
+      list[m.min].color = COLORS.a[2];
     }
     m.cur = m.cur + 1;
     if (m.cur > m.len - 2) {
@@ -195,9 +227,9 @@ function selectionSort(list, m) {
     }
   } 
 
-  list[m.cur].color = COLORS.a[2];
   list[m.comp].color = COLORS.c[0];
-  list[m.min].color = COLORS.a[1];
+  list[m.min].color = COLORS.a[2];
+  list[m.cur].color = COLORS.a[1];
 
   return [completed, list, m];
 }
@@ -276,6 +308,8 @@ function loadEventListeners(s) {
     const id = e.target.id;
     if ( id === 'play-pause') {
       s.playPause();
+    } else if ( id === 'mode-toggle' ) {
+      s.toggleMode();
     } else if ( id === 'shuffle' ) {
       s.shuffle();
     } else if ( id === 'selection' || id === 'insertion') {
