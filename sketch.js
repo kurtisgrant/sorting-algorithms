@@ -1,71 +1,84 @@
 class Sketch {
   constructor() {
-    this.mode = 'process'
-    // Animation variables
-    this.fps = MODES[this.mode].fps; // 20fps = 50ms/fm | 40fps = 25ms/fm | 60fps = 16ms/fm <-- ~60fps is about the upper limit
-    this.sortsPerFrame = MODES[this.mode].sortsPerFrame;
-    this.paused = true;
+    // Set defaults
+    this.mode = MODES['dev']; // MODES: ['dev', 'process', 'efficiency']
+    this.algo = ALGOS['selection']; 
 
-    // List creation variables
-    this.k = MODES[this.mode].k; // (Range of array values)
-    this.bWidth = MODES[this.mode].bWidth;
-
-    // Sorting variables
-    this.algoId = 'selection';
-    this.algo = selectionSort;
-    this.list = [];
-    this.mem = {};
-
-    // Setup w & h and create
     this.setup();
   }
   setup() {
+    this.playPause('pause');
     // Set w & h to canvas container
     this.w = canvas_container.offsetWidth -4;
     this.h = Math.floor(this.w * 0.6);
+
     // Size canvas according to w & h
     canvas_el.width = this.w-4;
     canvas_el.height = this.h-4;
+
+    this.setMode(this.mode.id);
+
     // Populate list
     const items = Math.floor(this.w / this.bWidth);
     const nList = [];
     for (let i = 0; i < items; i++) {
       nList.push({
         value: Math.ceil(Math.random() * this.k),
-        color: COLORS.p[0]
+        color: 0,
+        highlight: 0
       });
     }
     this.list = nList;
-    this.mem = {};
+
+    this.setAlgo(this.algo.id);
     this.draw();
   }
-  setAlgo(id) {
-    ALGOS[this.algoId].element.classList.toggle('active');
-    this.algoId = id;
-    this.algo = ALGOS[id].func;
-    ALGOS[this.algoId].element.classList.toggle('active');
-    algo_name.innerText = ALGOS[this.algoId].name;
-    this.mem = {};
-    this.draw();
+  setMode(newModeKey) {
+    if (this.mode && this.mode.btn) this.mode.btn.classList.remove('active');
+    this.mode = MODES[newModeKey];
+    if (this.mode.btn) this.mode.btn.classList.add('active');
+
+    // Animation variables
+    this.fps = this.mode.fps; // 20fps = 50ms/fm | 60fps = 16ms/fm <-- ~60fps is upper limit
+    this.sortsPerFrame = this.mode.sortsPerFrame;
+
+    // List creation variables
+    this.k = this.mode.k; // (Range of array values)
+    this.bWidth = this.mode.bWidth;
+  }
+  setAlgo(newAlgoKey) {
+    if (this.algo) this.algo.btn.classList.remove('active');
+    this.algo = ALGOS[newAlgoKey];
+    this.algo.btn.classList.add('active');
+
+    algo_header_el.innerText = this.algo.name;
+
+    // New list iterator
+    const iterator = ALGOS[this.algo.id].generator(this.list, 2); ////////// HARD CODED
+    this.nextList = iterator;
+
+    this.done = false;
   }
   animate() {
     if (this.paused) return;
     for (let i = 0; i < this.sortsPerFrame; i++) {
+      if (this.done) return;
       this.update();
     }
     this.draw();
   }
   update() {
-    if (this.paused) return;
+    if (this.paused || this.done) return;
 
-    // Get new list from sorting algorithm
-    const res = this.algo(
-      copyList(this.list), this.mem);
-    this.list = res[1];
-    if (res[0]) {
-      this.draw();
-      this.mem = {};
-      this.playPause();
+    // Iterate list by one step
+    const { done } = this.nextList.next();
+
+    // Stop if done 
+    if (done) {
+      this.done = true;
+      this.playPause('pause');
+      this.draw(); // Clear highlights
+      this.draw(); // Draw final sorted list
     }
   }
   draw() {
@@ -74,11 +87,14 @@ class Sketch {
 
     // Draw out list items
     this.list.forEach((item, index) => {
-      // Set drawing color
-      ctx.fillStyle = item.color;
-
-      // Reset item color
-      item.color = COLORS.p[0];
+      // Set drawing color to 'highlight' else 'color'
+      if (item.highlight > 0) {
+        ctx.fillStyle = COLORS.h[item.highlight -1];
+        // Clear highlight
+        item.highlight = 0;
+      } else {
+        ctx.fillStyle = COLORS.p[item.color];
+      }
 
       // Draw bar
       const w = this.bWidth;
@@ -88,22 +104,20 @@ class Sketch {
       ctx.fillRect(x, y, w, h);
     });
   }
-  playPause() {
-    this.paused = !this.paused;
-    play_pause_btn.innerText = this.paused ? 'Play' : 'Pause';
-  }
-  toggleMode() {
-    if (this.mode === 'process') {
-      this.mode = 'efficiency';
-      mode_btn.innerText = 'Visualize Process';
+  playPause(choice) {
+    if (choice === 'play') {
+      this.paused = false;
+      play_pause_btn.innerText = 'Pause';
+    } else if (choice === 'pause') {
+      this.paused = true;
+      play_pause_btn.innerText = 'Play';
     } else {
-      this.mode = 'process'
-      mode_btn.innerText = 'Visualize Efficiency';
+      this.paused = !this.paused;
+      play_pause_btn.innerText = this.paused ? 'Play' : 'Pause';
     }
-    this.fps = MODES[this.mode].fps;
-    this.sortsPerFrame = MODES[this.mode].sortsPerFrame;
-    this.k = MODES[this.mode].k; 
-    this.bWidth = MODES[this.mode].bWidth;
-    this.setup();
+    if (!this.paused && this.done) {
+      this.newListIterator();
+      this.done = false;
+    }
   }
 }

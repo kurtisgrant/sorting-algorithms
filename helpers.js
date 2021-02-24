@@ -15,17 +15,26 @@ function copyList(list) {
 }
 
 function swapBarData(fst, snd) {
-  const hold = {};
-  hold.color = fst.color;
-  hold.id = fst.id;
-  hold.value = fst.value;
+  const temp = {};
+  
+  temp.color = fst.color;
+  temp.id = fst.id;
+  temp.value = fst.value;
+  temp.highlight = fst.highlight;
 
   fst.color = snd.color;
   fst.id = snd.id;
   fst.value = snd.value;
+  fst.highlight = snd.highlight;
 
-  snd.color = hold.color;
-  snd.id = hold.id;
-  snd.value = hold.value;
-   
+  snd.color = temp.color;
+  snd.id = temp.id;
+  snd.value = temp.value;
+  snd.highlight = temp.highlight;
+}
+
+function clearColors(list) {
+  for (let bar of list) {
+    bar.color = COLORS2.p[0];
+  }
 }

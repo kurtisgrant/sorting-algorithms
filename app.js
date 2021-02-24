@@ -30,12 +30,14 @@ function loadEventListeners(s) {
     const id = e.target.id;
     if ( id === 'play-pause') {
       s.playPause();
-    } else if ( id === 'mode-toggle' ) {
-      s.toggleMode();
     } else if ( id === 'shuffle' ) {
       s.setup();
     } else {
-      s.setAlgo(id)
+      if (e.target.classList.contains('algo')) s.setAlgo(id);
+      if (e.target.classList.contains('mode')) {
+        s.setMode(id);
+        s.setup();
+      }
     }
   })
 }

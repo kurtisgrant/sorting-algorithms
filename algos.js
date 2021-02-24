@@ -1,91 +1,90 @@
 
 // DEV //////////////////////////////////////
-const devListLen = 30;
-const devList = [];
-for (let i = 0; i < devListLen; i++) {
-  devList.push({
-    id: Math.random().toString().slice(2),
-    value: Math.ceil(Math.random() * 200),
-    color: COLORS2.p[0]
-  });
-  devList[Symbol.iterator] = valColIterator;
-  function valColIterator() {
-    let i = -1;
-    return {
-      next: () => {
-        i = i + 1;
-        if (typeof this[i] != "undefined") {
-          return { value: `[${this[i].value} ${this[i].color.slice(1)}]`, done: false }
-        } else {
-          return { value: undefined, done: true }
-        }
-      }
-    }
-  }
-}
+// const devListLen = 30;
+// const devList = [];
+// for (let i = 0; i < devListLen; i++) {
+//   devList.push({
+//     value: Math.ceil(Math.random() * 200),
+//     color: COLORS2.p[0]
+//   });
+//   devList[Symbol.iterator] = valColIterator;
+//   function valColIterator() {
+//     let i = -1;
+//     return {
+//       next: () => {
+//         i = i + 1;
+//         if (typeof this[i] != "undefined") {
+//           return { value: `[${this[i].value} ${this[i].color.slice(1)}]`, done: false }
+//         } else {
+//           return { value: undefined, done: true }
+//         }
+//       }
+//     }
+//   }
+// }
 
 // DEV //////////////////////////////////////
 
 let ALGOS = {
   'selection': {
+    id: 'selection',
     name: 'Selection Sort',
-    generator: getSelectionSorter
+    generator: selectionGen,
+    btn: selection_btn
   },
   'insertion': {
+    id: 'insertion',
     name: 'Insertion Sort'
   },
   'bubble': {
+    id: 'bubble',
     name: 'Bubble Sort'
   }
 }
 
 
-for (let algoId in ALGOS) {
-  ALGOS[algoId].element = document.querySelector(`#${algoId}`);
-}
-
 // Sort Algorithm Functions
-function* getSelectionSorter(list) {
-  const wList = copyList(list);
+function* selectionGen(list, steps) {
 
   // Number of yields throughout sorting (0-3)
-  let stepsShown = yield;
+  const stepsShown = steps;
 
   // Outer loop
-  for (let iCur = 0; iCur < wList.length; iCur++) {
-    let cur = wList[iCur];
-    if (iCur > 0) wList[iCur -1].color = COLORS2.b[2];
-    cur.color = COLORS2.a[1];
+  for (let iCur = 0; iCur < list.length; iCur++) {
+    let cur = list[iCur];
+
+    cur.highlight = 1;
     let min = cur;
 
     // Inner loop
-    for (let iComp = iCur + 1; iComp < wList.length; iComp++) {
-      let comp = wList[iComp];
+    for (let iComp = iCur + 1; iComp < list.length; iComp++) {
+      let comp = list[iComp];
 
       // Save if lowest seen
       if (comp.value < min.value) {
-        min.color = COLORS2.p[0];
-        cur.color = COLORS2.a[1];
         min = comp;
-        if (stepsShown > 1) {
-          min.color = COLORS2.b[1];
-          stepsShown = yield wList;
+        if (stepsShown > 0) {
+          min.highlight = 2;
+          cur.highlight = 1;
+          yield list;
         }
       } else {
-        if (stepsShown > 2) {
-          comp.color = COLORS2.p[2];
-          stepsShown = yield wList;
-          comp.color = COLORS2.p[0];
+        if (stepsShown > 1) {
+          comp.highlight = 3;
+          min.highlight = 2;
+          cur.highlight = 1;
+          yield list;
         }
       }
     }
     // After each inner loop, swap if necessary
     if (cur.value > min.value) {
       swapBarData(cur, min);
-      min.color = COLORS2.p[0];
     }
+    min.color = 0; // Reset color of min (previously cur)
+    cur.color = 2; // Set color of cur (previously min) to 'done' color
   }
-  yield wList;
+  yield list;
 }
 
 function selectionSort(list) {
@@ -109,12 +108,12 @@ function* getInsertionSorter(list) {
 function* getBubbleSorter(list) {
 }
 
-const selectionSorter = getSelectionSorter(devList);
-setInterval(() => {
-  const { value: sorted, done } = selectionSorter.next(2);
+// const selectionSorter = selectionGen(devList);
+// setInterval(() => {
+//   const { value: sorted, done } = selectionSorter.next(3);
   
-  if (!done) {
-    sorted[Symbol.iterator] = valColIterator;
-    console.log(...sorted);
-  } else console.log('done');
-}, 5);
+//   if (!done) {
+//     sorted[Symbol.iterator] = valColIterator;
+//     console.log(...sorted);
+//   } else console.log('done');
+// }, 5);
