@@ -33,8 +33,7 @@ const MODES = {
     fps: 2,
     k: 200,
     bWidth: 40,
-    sortsPerFrame: 1,
-    stepsPerUpdate: 2
+    sortsPerFrame: 1
   },
   'slow': {
     id: 'slow',
@@ -42,7 +41,6 @@ const MODES = {
     k: 200,
     bWidth: 40,
     sortsPerFrame: 1,
-    stepsPerUpdate: 2,
     btn: slow_btn
   },
   'medium': {
@@ -51,7 +49,6 @@ const MODES = {
     k: 1000,
     bWidth: 15,
     sortsPerFrame: 3,
-    stepsPerUpdate: 2,
     btn: medium_btn
   },
   'fast': {
@@ -60,7 +57,6 @@ const MODES = {
     k: 2000,
     bWidth: 2,
     sortsPerFrame: 500,
-    stepsPerUpdate: 2,
     btn: fast_btn
   }
 }

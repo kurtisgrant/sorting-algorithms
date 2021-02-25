@@ -54,7 +54,7 @@ class Sketch {
     algo_header_el.innerText = this.algo.name;
 
     // New list iterator
-    const iterator = ALGOS[this.algo.id].generator(this.list, this.mode.stepsPerUpdate);
+    const iterator = ALGOS[this.algo.id].generator(this.list);
     this.nextList = iterator;
 
     this.done = false;

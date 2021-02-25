@@ -17,15 +17,18 @@ let ALGOS = {
     name: 'Bubble Sort',
     generator: bubbleGen,
     btn: bubble_btn
+  },
+  'merge': {
+    id: 'merge',
+    name: 'Merge Sort',
+    generator: mergeGen,
+    btn: merge_btn
   }
 }
 
 
 // Sort Algorithm Functions
-function* selectionGen(list, steps) {
-
-  // Number of yields throughout sorting (0-3)
-  const stepsShown = steps;
+function* selectionGen(list) {
 
   // Outer loop
   for (let iCur = 0; iCur < list.length; iCur++) {
@@ -41,32 +44,21 @@ function* selectionGen(list, steps) {
       // Save if lowest seen
       if (comp.value < min.value) {
         min = comp;
-        if (stepsShown === 2) {
-          min.highlight = 2;
-          cur.highlight = 1;
-          yield list;
-        }
+        min.highlight = 2;
+        cur.highlight = 1;
+        yield list;
       } else {
-        if (stepsShown === 2) {
-          comp.highlight = 3;
-          min.highlight = 2;
-          cur.highlight = 1;
-          yield list;
-        }
-      }
-    }
-    // After each inner loop, swap if necessary
-    if (cur.value > min.value) {
-      if (stepsShown === 1) {
+        comp.highlight = 3;
         min.highlight = 2;
         cur.highlight = 1;
         yield list;
       }
-      swapBarData(cur, min);
     }
-    if (stepsShown === 1) {
+    // After each inner loop, swap if necessary
+    if (cur.value > min.value) {
       min.highlight = 2;
       cur.highlight = 1;
+      swapBarData(cur, min);
       yield list;
     }
     min.color = 0; // Reset color of min (previously cur)
@@ -77,16 +69,13 @@ function* selectionGen(list, steps) {
   yield list;
 }
 
-function* insertionGen(list, steps) {
-
-  // Number of yields throughout sorting (0-3)
-  const stepsShown = steps;
+function* insertionGen(list) {
 
   // Outer loop
   for (let iUnsorted = 0; iUnsorted < list.length; iUnsorted++) {
     list[iUnsorted].color = 2;
     list[iUnsorted].highlight = 2;
-    if (stepsShown > 0) yield list;
+    yield list;
     let iCur = iUnsorted;
 
     // Inner loop
@@ -94,7 +83,7 @@ function* insertionGen(list, steps) {
       list[iCur].highlight = 2;
       swapBarData(list[iCur], list[iCur -1]);
 
-      if (stepsShown > 1) yield list;
+      yield list;
       iCur--;
     }
   }
@@ -102,10 +91,7 @@ function* insertionGen(list, steps) {
   yield list;
 }
 
-function* bubbleGen(list, steps) {
-
-  // Number of yields throughout sorting (0-3)
-  const stepsShown = steps;
+function* bubbleGen(list) {
 
   for (let i = 0; i < list.length; i++) {
     for (let j = 0; j < list.length - (i + 1); j++) {
@@ -121,4 +107,8 @@ function* bubbleGen(list, steps) {
     }
     list[list.length - (i + 1)].color = 2
   }
+}
+
+function* mergeGen(list) {
+
 }
