@@ -41,7 +41,7 @@ const ctx = canvas_el.getContext('2d');
 const MODES = {
   'dev': {
     id: 'dev',
-    fps: 5,
+    fps: 2,
     k: 200,
     bWidth: 40,
     sortsPerFrame: 1,
@@ -49,9 +49,9 @@ const MODES = {
   },
   'process': {
     id: 'process',
-    fps: 20,
+    fps: 10,
     k: 200,
-    bWidth: 15,
+    bWidth: 25,
     sortsPerFrame: 1,
     stepsPerUpdate: 2,
     btn: process_btn
@@ -61,7 +61,7 @@ const MODES = {
     fps: 60,
     k: 2000,
     bWidth: 1,
-    sortsPerFrame: 300,
+    sortsPerFrame: 450,
     stepsPerUpdate: 2,
     btn: efficiency_btn
   }

@@ -40,7 +40,9 @@ let ALGOS = {
   },
   'bubble': {
     id: 'bubble',
-    name: 'Bubble Sort'
+    name: 'Bubble Sort',
+    generator: bubbleGen,
+    btn: bubble_btn
   }
 }
 
@@ -126,11 +128,25 @@ function* insertionGen(list, steps) {
   yield list;
 }
 
-function* getBubbleSorter(list, steps) {
+function* bubbleGen(list, steps) {
 
   // Number of yields throughout sorting (0-3)
   const stepsShown = steps;
 
+  for (let i = 0; i < list.length; i++) {
+    for (let j = 0; j < list.length - (i + 1); j++) {
+      list[j].highlight = 2;
+      list[j+1].highlight = 3;
+      if (list[j].value > list[j+1].value) {
+        yield list;
+        list[j].highlight = 2;
+        list[j+1].highlight = 3;
+        swapBarData(list[j], list[j+1]);
+      }
+      yield list;
+    }
+    list[list.length - (i + 1)].color = 2
+  }
 }
 
 // const selectionSorter = selectionGen(devList);
