@@ -17,62 +17,38 @@
       <div id="controls" class="inner-container">
         <h3>Controls</h3>
         <div class="ctrl-group">
-          <button id="play-btn">Play</button>
-          <button id="shuffle-btn">Shuffle</button>
+          <button id="play-pause">Play</button>
+          <button id="shuffle">Shuffle</button>
         </div>
         <div class="ctrl-group">
-          <label for="speed-slider">Speed</label>
-          <div class="slidecontainer">
-            <input type="range" min="1" max="100" value="50" class="slider" id="speed-slider" name='speed-slider'>
-          </div>
-          <label for="length-slider">Array Length</label>
-          <div class="slidecontainer">
-            <input type="range" min="0" max="100" value="40" class="slider" id="length-slider" name='length-slider'>
-          </div>
+          <button class="mode" id="process">Process</button>
+          <button class="mode" id="efficiency">Efficiency</button>
         </div>
         <div class="ctrl-group">
-          <button class="algo-btn" id="selection">Selection Sort</button>
-          <button class="algo-btn" id="insertion">Insertion Sort</button>
-          <button class="algo-btn" id="bubble">Bubble Sort</button>
-          <button class="algo-btn" id="merge">Merge Sort</button>
-          <button class="algo-btn" id="counting">Counting Sort</button>
-          <button class="algo-btn" id="quick">Quick Sort</button>
+          <button class="algo" id="selection">Selection Sort</button>
+          <button class="algo" id="insertion">Insertion Sort</button>
+          <button class="algo" id="bubble">Bubble Sort</button>
+          <button class="algo" id="merge">Merge Sort</button>
+          <button class="algo" id="counting">Counting Sort</button>
+          <button class="algo" id="quick">Quick Sort</button>
         </div>
       </div>
     </div>
       
     <div class="container center">
       <div id="center" class="inner-container">
-        <h2 id="algo-name">Merge Sort</h2>
+        <h2 id="algo-name">Selection Sort</h2>
         <div class="canvas-container">
           <canvas id="main-canvas" class="canvas"></canvas>
         </div>
       </div>
     </div>
-
-    <div class="container right-sidebar">
-      <div id="info" class="inner-container">
-        <h3>Info</h3>
-        <p id="info-intro">
-          Lorem ipsum dolor sit amet consectetur adipisicing elit. Non ratione nisi corporis nihil soluta corrupti sequi veritatis eum officiis atque! Dolor esse tenetur eius aperiam! Deserunt sunt id laborum? Soluta!
-        </p>
-        <h4>Process</h4>
-        <i id="info-process">
-          Lorem ipsum dolor sit amet consectetur adipisicing elit. Inventore aliquam voluptatibus quos sit, excepturi voluptatem. <br>Lorem ipsum, dolor sit amet consectetur adipisicing elit. Inventore provident reiciendis placeat adipisci?
-        </i>
-        <h4>Time & Space Complexity</h4>
-        <p>
-          <b>Time Complexity: </b><br><span id="time-complexity">O(n log(n))</span><br>
-          <span id="time-notes">Lorem ipsum dolor, sit amet consectetur adipisicing elit. Temporibus, reiciendis.</span>
-        </p>
-        <p>
-          <b>Space Complexity: </b><br><span id="space-complexity">O(n log(n))</span><br>
-          <span id="space-notes">Lorem ipsum dolor, sit amet consectetur adipisicing elit. Sed odit provident at voluptatum!</span>
-        </p>
-      </div>
-    </div>
   </div>
 
+  <script src="helpers.js"></script>
+  <script src="config.js"></script>
+  <script src="algos.js"></script>
+  <script src="sketch.js"></script>
   <script src="app.js"></script>
 </body>
 </html>
