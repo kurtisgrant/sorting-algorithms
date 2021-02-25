@@ -25,8 +25,9 @@ const algo_header_el = document.querySelector('#algo-name');
 const control_panel = document.querySelector('#controls');
 const play_pause_btn = document.querySelector('#play-pause');
 
-const process_btn = document.querySelector('#process');
-const efficiency_btn = document.querySelector('#efficiency');
+const slow_btn = document.querySelector('#slow');
+const medium_btn = document.querySelector('#medium');
+const fast_btn = document.querySelector('#fast');
 
 const selection_btn = document.querySelector('#selection');
 const insertion_btn = document.querySelector('#insertion');
@@ -47,22 +48,31 @@ const MODES = {
     sortsPerFrame: 1,
     stepsPerUpdate: 2
   },
-  'process': {
-    id: 'process',
-    fps: 10,
+  'slow': {
+    id: 'slow',
+    fps: 4,
     k: 200,
-    bWidth: 25,
+    bWidth: 40,
     sortsPerFrame: 1,
     stepsPerUpdate: 2,
-    btn: process_btn
+    btn: slow_btn
   },
-  'efficiency': {
-    id: 'efficiency',
+  'medium': {
+    id: 'medium',
     fps: 60,
-    k: 2000,
-    bWidth: 1,
-    sortsPerFrame: 450,
+    k: 1000,
+    bWidth: 15,
+    sortsPerFrame: 3,
     stepsPerUpdate: 2,
-    btn: efficiency_btn
+    btn: medium_btn
+  },
+  'fast': {
+    id: 'fast',
+    fps: 30,
+    k: 2000,
+    bWidth: 2,
+    sortsPerFrame: 500,
+    stepsPerUpdate: 2,
+    btn: fast_btn
   }
 }
