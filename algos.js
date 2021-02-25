@@ -1,30 +1,4 @@
 
-// DEV //////////////////////////////////////
-// const devListLen = 30;
-// const devList = [];
-// for (let i = 0; i < devListLen; i++) {
-//   devList.push({
-//     value: Math.ceil(Math.random() * 200),
-//     color: COLORS2.p[0]
-//   });
-//   devList[Symbol.iterator] = valColIterator;
-//   function valColIterator() {
-//     let i = -1;
-//     return {
-//       next: () => {
-//         i = i + 1;
-//         if (typeof this[i] != "undefined") {
-//           return { value: `[${this[i].value} ${this[i].color.slice(1)}]`, done: false }
-//         } else {
-//           return { value: undefined, done: true }
-//         }
-//       }
-//     }
-//   }
-// }
-
-// DEV //////////////////////////////////////
-
 let ALGOS = {
   'selection': {
     id: 'selection',
@@ -148,13 +122,3 @@ function* bubbleGen(list, steps) {
     list[list.length - (i + 1)].color = 2
   }
 }
-
-// const selectionSorter = selectionGen(devList);
-// setInterval(() => {
-//   const { value: sorted, done } = selectionSorter.next(3);
-  
-//   if (!done) {
-//     sorted[Symbol.iterator] = valColIterator;
-//     console.log(...sorted);
-//   } else console.log('done');
-// }, 5);
