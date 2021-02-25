@@ -34,7 +34,9 @@ let ALGOS = {
   },
   'insertion': {
     id: 'insertion',
-    name: 'Insertion Sort'
+    name: 'Insertion Sort',
+    generator: insertionGen,
+    btn: insertion_btn
   },
   'bubble': {
     id: 'bubble',
@@ -52,9 +54,9 @@ function* selectionGen(list, steps) {
   // Outer loop
   for (let iCur = 0; iCur < list.length; iCur++) {
     let cur = list[iCur];
+    let min = cur;
 
     cur.highlight = 1;
-    let min = cur;
 
     // Inner loop
     for (let iComp = iCur + 1; iComp < list.length; iComp++) {
@@ -63,13 +65,13 @@ function* selectionGen(list, steps) {
       // Save if lowest seen
       if (comp.value < min.value) {
         min = comp;
-        if (stepsShown > 0) {
+        if (stepsShown === 2) {
           min.highlight = 2;
           cur.highlight = 1;
           yield list;
         }
       } else {
-        if (stepsShown > 1) {
+        if (stepsShown === 2) {
           comp.highlight = 3;
           min.highlight = 2;
           cur.highlight = 1;
@@ -79,33 +81,56 @@ function* selectionGen(list, steps) {
     }
     // After each inner loop, swap if necessary
     if (cur.value > min.value) {
+      if (stepsShown === 1) {
+        min.highlight = 2;
+        cur.highlight = 1;
+        yield list;
+      }
       swapBarData(cur, min);
     }
+    if (stepsShown === 1) {
+      min.highlight = 2;
+      cur.highlight = 1;
+      yield list;
+    }
     min.color = 0; // Reset color of min (previously cur)
+    min.highlight = 1;
     cur.color = 2; // Set color of cur (previously min) to 'done' color
+    cur.highlight = 2;
   }
   yield list;
 }
 
-function selectionSort(list) {
+function* insertionGen(list, steps) {
 
-  for (let iCur = 0; iCur < list.length; iCur++) {
-    let cur = list[iCur];
-    let min = cur;
-    for (let iComp = iCur + 1; iComp < list.length; iComp++) {
-      let comp = list[iComp];
-      if (comp.value < min.value) min = comp;
+  // Number of yields throughout sorting (0-3)
+  const stepsShown = steps;
+
+  // Outer loop
+  for (let iUnsorted = 0; iUnsorted < list.length; iUnsorted++) {
+    list[iUnsorted].color = 2;
+    list[iUnsorted].highlight = 2;
+    if (stepsShown > 0) yield list;
+    let iCur = iUnsorted;
+
+    // Inner loop
+    while (iCur > 0 && list[iCur -1].value > list[iCur].value) {
+      list[iCur].highlight = 2;
+      swapBarData(list[iCur], list[iCur -1]);
+
+      if (stepsShown > 1) yield list;
+      iCur--;
     }
-    if (cur.value > min.value) swapBarData(cur, min)
   }
+  // list[list.length -1].color = 2;
+  yield list;
 }
 
+function* getBubbleSorter(list, steps) {
 
-function* getInsertionSorter(list) {
-}
+  // Number of yields throughout sorting (0-3)
+  const stepsShown = steps;
 
-
-function* getBubbleSorter(list) {
 }
 
 // const selectionSorter = selectionGen(devList);

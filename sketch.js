@@ -23,7 +23,7 @@ class Sketch {
     const nList = [];
     for (let i = 0; i < items; i++) {
       nList.push({
-        value: Math.ceil(Math.random() * this.k),
+        value: Math.ceil((Math.random() * this.k * 0.97) + this.k * 0.03),
         color: 0,
         highlight: 0
       });
@@ -54,7 +54,7 @@ class Sketch {
     algo_header_el.innerText = this.algo.name;
 
     // New list iterator
-    const iterator = ALGOS[this.algo.id].generator(this.list, 2); ////////// HARD CODED
+    const iterator = ALGOS[this.algo.id].generator(this.list, this.mode.stepsPerUpdate);
     this.nextList = iterator;
 
     this.done = false;
@@ -105,19 +105,33 @@ class Sketch {
     });
   }
   playPause(choice) {
+    // Usage:
+    //  [No params]        ->  Toggle
+    //  'play' or 'pause'  ->  Set to respective
+
     if (choice === 'play') {
       this.paused = false;
       play_pause_btn.innerText = 'Pause';
     } else if (choice === 'pause') {
       this.paused = true;
       play_pause_btn.innerText = 'Play';
+    } else if (this.paused && this.done) {
+      this.cleanList()
+      this.setAlgo(this.algo.id);
+      this.playPause('play');
     } else {
       this.paused = !this.paused;
       play_pause_btn.innerText = this.paused ? 'Play' : 'Pause';
     }
-    if (!this.paused && this.done) {
-      this.newListIterator();
-      this.done = false;
+  }
+  cleanList() {
+    const wasPaused = this.paused;
+    this.playPause('pause');
+    for (let bar of this.list) {
+      bar.color = 0;
+      bar.highlight = 0;
     }
+    if (!wasPaused) this.playPause('play');
+    this.draw();
   }
 }

@@ -1,5 +1,4 @@
 
-
 const sketch = new Sketch();
 
 loadEventListeners(sketch);
@@ -33,8 +32,10 @@ function loadEventListeners(s) {
     } else if ( id === 'shuffle' ) {
       s.setup();
     } else {
-      if (e.target.classList.contains('algo')) s.setAlgo(id);
-      if (e.target.classList.contains('mode')) {
+      if (e.target.classList.contains('algo')) {
+        s.setAlgo(id);
+        s.cleanList();
+      } else if (e.target.classList.contains('mode')) {
         s.setMode(id);
         s.setup();
       }
